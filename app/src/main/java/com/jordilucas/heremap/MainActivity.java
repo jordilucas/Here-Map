@@ -8,19 +8,27 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.here.android.mpa.common.GeoCoordinate;
+import com.here.android.mpa.common.GeoPosition;
 import com.here.android.mpa.common.OnEngineInitListener;
+import com.here.android.mpa.common.PositioningManager;
 import com.here.android.mpa.mapping.Map;
 import com.here.android.mpa.mapping.MapFragment;
+import com.here.android.mpa.mapping.MapState;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Map.OnTransformListener{
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -35,19 +43,30 @@ public class MainActivity extends AppCompatActivity {
 
     // map embedded in the map fragment
     private Map map = null;
-
+    GeoPosition geoPosition;
     // map fragment embedded in this activity
     private MapFragment mapFragment = null;
+    private boolean paused;
+    private ImageView imageView;
+    private TextView textView;
+
+    private PositioningManager positioningManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
         checkPermissions();
+
+
+
     }
 
     private void initialize() {
         setContentView(R.layout.activity_main);
+
+        imageView = findViewById(R.id.imageView);
+        textView = findViewById(R.id.textView);
 
         // Search for the map fragment to finish setup by calling init().
         mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapfragment);
@@ -62,11 +81,20 @@ public class MainActivity extends AppCompatActivity {
                             Map.Animation.NONE);
                     // Set the zoom level to the average between min and max
                     map.setZoomLevel((map.getMaxZoomLevel() + map.getMinZoomLevel()) / 2);
+                    map.addTransformListener(MainActivity.this);
+
+
+
+
                 } else {
                     Log.e(LOG_TAG, "Cannot initialize MapFragment (" + error + ")");
                 }
             }
         });
+
+
+
+
     }
 
     protected void checkPermissions() {
@@ -111,4 +139,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+
+    @Override
+    public void onMapTransformStart() {
+        Log.i(LOG_TAG, "onMapTransformStart: ");
+    }
+
+    @Override
+    public void onMapTransformEnd(MapState mapState) {
+        Log.i(LOG_TAG, "onMapTransformEnd: ");
+        mapState.getCenter().getLatitude();
+    }
 }
