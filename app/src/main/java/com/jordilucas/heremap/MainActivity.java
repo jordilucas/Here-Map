@@ -20,6 +20,7 @@ import com.here.android.mpa.common.OnEngineInitListener;
 import com.here.android.mpa.common.PositioningManager;
 import com.here.android.mpa.mapping.Map;
 import com.here.android.mpa.mapping.MapFragment;
+import com.here.android.mpa.mapping.MapGesture;
 import com.here.android.mpa.mapping.MapState;
 
 import java.lang.ref.WeakReference;
@@ -84,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements Map.OnTransformLi
                     map.addTransformListener(MainActivity.this);
 
 
+                    PositioningManager.getInstance().addListener(
+                            new WeakReference<PositioningManager.OnPositionChangedListener>(positionListener));
 
 
                 } else {
@@ -151,4 +154,26 @@ public class MainActivity extends AppCompatActivity implements Map.OnTransformLi
         Log.i(LOG_TAG, "onMapTransformEnd: ");
         mapState.getCenter().getLatitude();
     }
+
+    private PositioningManager.OnPositionChangedListener positionListener = new
+            PositioningManager.OnPositionChangedListener() {
+
+                public void onPositionUpdated(PositioningManager.LocationMethod method,
+                                              GeoPosition position, boolean isMapMatched) {
+                    // set the center only when the app is in the foreground
+                    // to reduce CPU consumption
+                    Log.i(LOG_TAG, "onPositionUpdated: ");
+                    if (!paused) {
+                        map.setCenter(position.getCoordinate(),
+                                Map.Animation.NONE);
+                    }
+                }
+
+                public void onPositionFixChanged(PositioningManager.LocationMethod method,
+                                                 PositioningManager.LocationStatus status) {
+
+                    Log.i(LOG_TAG, "onPositionFixChanged: ");
+
+                }
+            };
 }

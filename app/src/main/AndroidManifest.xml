@@ -29,6 +29,9 @@
         <meta-data
             android:name="com.here.android.maps.apptoken"
             android:value="aKXqfXmsfC54FdevfIVvuA" />
+        <meta-data
+            android:name="com.here.android.maps.license.key"
+            android:value="{YOUR_LICENSE_KEY}" />
 
     </application>
 
